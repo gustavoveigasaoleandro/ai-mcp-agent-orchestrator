@@ -1,50 +1,70 @@
-# AI MCP Agent Orchestrator
+# ai-mcp-agent-orchestrator
 
-Sistema multiagente com FastAPI, AutoGen e MCP para orquestrar operacoes entre Gmail, Google Sheets, Monday.com e analise assistida por Azure AI.
+Projeto de orquestracao de agentes de IA integrados a servidores MCP locais para executar tarefas envolvendo Gmail, Google Sheets, Monday e Azure AI/OpenAI.
 
-## O que o projeto faz
+## Visao Geral
 
-- recebe mensagens por WebSocket
-- distribui tarefas entre agentes especializados
-- integra Gmail e Google Sheets via MCP servers locais
-- integra Monday.com via MCP server Node
-- oferece analise e sugestao de graficos com Azure AI
+O repositorio organiza um experimento de agentes especializados que compartilham um cliente de modelo e se conectam a ferramentas externas por meio de servidores MCP.
+
+O objetivo e demonstrar:
+
+- composicao de agentes com responsabilidades distintas;
+- uso de um cliente de LLM centralizado;
+- integracao com ferramentas via MCP;
+- separacao entre codigo, configuracao e credenciais;
+- fluxo local de automacao assistida por IA.
 
 ## Estrutura
 
-- `main.py`: servidor FastAPI e orquestracao principal dos agentes
-- `agent/`: agentes especializados
-- `mcp_servers/gmail`: MCP server local para Gmail
-- `mcp_servers/sheets`: MCP server local para Google Sheets
-- `model/model.py`: configuracao do cliente de modelo
-
-## Seguranca e curadoria
-
-Esta versao foi preparada para publicacao:
-
-- credenciais, tokens e arquivos `.env` foram removidos
-- caminhos absolutos locais foram substituidos por caminhos relativos
-- ambientes virtuais, caches, artefatos de IDE e repositorios aninhados foram excluidos
-- o servidor vendorizado `mcp-brasil` nao foi incluido
+- `main.py`: ponto de entrada do orquestrador.
+- `agent/`: definicoes dos agentes especializados.
+- `model/`: configuracao do cliente de modelo.
+- `mcp_servers/`: servidores MCP locais para ferramentas externas.
+- `.env.example`: variaveis esperadas para configuracao local.
+- `requirements.txt`: dependencias Python.
 
 ## Configuracao
 
-1. Crie um ambiente virtual.
-2. Instale as dependencias de `requirements.txt`.
-3. Copie `.env.example` para `.env` e preencha as variaveis necessarias.
-4. Adicione seus arquivos `credentials.json` e autentique os MCP servers de Gmail e Sheets localmente.
+Crie um arquivo `.env` local com base em `.env.example`.
 
-## Execucao
+Variaveis esperadas incluem configuracoes para:
+
+- Azure OpenAI;
+- Azure AI Project;
+- Monday;
+- caminhos locais de credenciais OAuth quando necessario.
+
+Arquivos reais de segredo, como `.env`, `credentials.json` e `token.json`, nao devem ser versionados.
+
+## Gmail e Google Sheets
+
+As integracoes com Gmail e Sheets usam OAuth 2.0. O fluxo esperado e manter localmente:
+
+- `credentials.json`: credenciais do app Google Cloud;
+- `token.json`: token gerado apos autorizacao do usuario.
+
+Esses arquivos estao protegidos pelo `.gitignore` e nao fazem parte do repositorio.
+
+## Como Executar
+
+Instale as dependencias:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app_ws --reload
 ```
 
-## Observacoes
+Configure o `.env` e os arquivos OAuth locais, quando aplicavel.
 
-- O projeto depende de servicos externos configurados corretamente.
-- Os MCP servers de Gmail e Sheets exigem credenciais OAuth locais.
-- O agente do Monday depende de `npx` e de um token valido no ambiente.
+Execute o orquestrador:
+
+```bash
+python main.py
+```
+
+## Seguranca
+
+A versao publicada foi curada para remover credenciais, tokens, ambientes virtuais, caches e repositorios terceiros vendorizados. Mesmo assim, se credenciais reais ja existiram no diretorio original, recomenda-se rotaciona-las antes de qualquer uso publico.
+
+## Escopo
+
+Este repositorio e um prototipo local de arquitetura multiagente. Para producao, ainda seriam necessarios testes, observabilidade, controle de permissoes, validacao de ferramentas e tratamento robusto de erros.
